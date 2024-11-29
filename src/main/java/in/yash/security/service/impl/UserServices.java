@@ -17,6 +17,7 @@ import in.yash.security.DTO.SignUpRequest;
 import in.yash.security.DTO.SignUpResponse;
 import in.yash.security.Entity.User;
 import in.yash.security.JwtService.JwtService;
+import in.yash.security.SessionService.SessionService;
 
 @Service
 public class UserServices {
@@ -32,6 +33,9 @@ public class UserServices {
 	
 	@Autowired
 	private AuthenticationManager authenticationManager;
+	
+	@Autowired
+	private SessionService sessionService;
 	
 	@Autowired
 	private JwtService jwtService;
@@ -58,10 +62,26 @@ public class UserServices {
 		Authentication authentication=authenticationManager.authenticate(authenticationToken);
 		User user= (User) authentication.getPrincipal();
 		String token=jwtService.createToken(user);
-		String username=jwtService.extractUserName(token);
+		String refreshToken=jwtService.createRefreshToken(user);
+		sessionService.createNewSession(user,refreshToken);
 		LoginResponse response=new LoginResponse();
-		response.setToken(token);
-		response.setUserName(username);
+		response.setAccessToken(token);
+		response.setRefreshToken(refreshToken);
 		return response;
 	}
+	
+	public LoginResponse createNewAccessToken(String refreshToken) {
+		int id=jwtService.extractId(refreshToken);
+		User u=repo.findById(id).orElseThrow(()->new UsernameNotFoundException("Invalid refresh token"));
+		String newAcessToken=jwtService.createToken(u);
+		sessionService.validSession(refreshToken);
+		LoginResponse loginResponse=new LoginResponse();
+		
+		loginResponse.setAccessToken(newAcessToken);
+		loginResponse.setRefreshToken(refreshToken);
+		return loginResponse;
+	}
+
+	
+	
 }

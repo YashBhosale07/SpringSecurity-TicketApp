@@ -39,4 +39,10 @@ public class TicketController {
 		}
 		return new ResponseEntity<String>("Ticket is not present with id:"+id,HttpStatus.BAD_REQUEST);
 	}
+	
+	@GetMapping("/getAllTickets")
+	public ResponseEntity<?>getAllTicket(){
+		return new ResponseEntity<String>("Ticket is not present with id:",HttpStatus.BAD_REQUEST);
+	}
+	
 }

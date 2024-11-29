@@ -33,13 +33,37 @@ public class JwtService {
 		return generateToken(user);
 	}
 
+	public String createRefreshToken(User user) {
+		return generateRefreshToken(user);
+	}
+	
+	private String generateRefreshToken(User user) {
+		return Jwts
+				.builder()
+				.setSubject(String.valueOf(user.getId()))
+				.setIssuedAt(new Date(System.currentTimeMillis()))
+				.setExpiration(new Date(System.currentTimeMillis()+1000*60*60))
+				.signWith(key())
+				.compact();
+	}
+	
+	public int extractId(String token) {
+		Claims claims=Jwts.parserBuilder()
+				.setSigningKey(key())
+				.build()
+				.parseClaimsJws(token)
+				.getBody();
+		String id=claims.getSubject();
+		return Integer.parseInt(id);
+	}
+
 	private String generateToken(User user) {
 		return Jwts
 				.builder()
 				.claim("role", user.getAuthorities())
 				.setSubject(user.getUsername())
 				.setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis()+1000*60*10))
+				.setExpiration(new Date(System.currentTimeMillis()+1000*60))
 				.signWith(key())
 				.compact();
 	}
@@ -57,6 +81,7 @@ public class JwtService {
 	public User getUserByUsername(String userName) {
 		  return repo.findByUserName(userName);
 	}
+
 	
 
 }

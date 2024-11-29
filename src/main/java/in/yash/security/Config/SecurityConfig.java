@@ -64,10 +64,11 @@ public class SecurityConfig {
 		 return httpSecurity
 	                .csrf(csrf -> csrf.disable()) // Disable CSRF for testing in Postman
 	                .authorizeHttpRequests(auth -> auth
-	                    .requestMatchers("/getAllTicket").hasRole("ADMIN") // Access only for ADMIN role
+	                    .requestMatchers("/getAllTickets").hasRole("ADMIN") // Access only for ADMIN role
 	                    .requestMatchers("/getTicket/**").hasAnyRole("USER") // Access only for GUEST role
 	                    .requestMatchers("/signUp").permitAll()
 	                    .requestMatchers("/login").permitAll()// Allow access to sign-up endpoint
+	                    .requestMatchers("/refreshToken").permitAll()
 	                    .anyRequest().authenticated()// All other requests require authentication
 	                )
 	                .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
